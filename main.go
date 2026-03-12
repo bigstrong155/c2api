@@ -36,7 +36,7 @@ func main() {
 
 	// 禁用 Gin 的调试信息输出
 	gin.DisableConsoleColor()
-	
+
 	// 创建路由器（使用 gin.New() 而不是 gin.Default() 以避免默认日志）
 	router := gin.New()
 
@@ -57,7 +57,7 @@ func main() {
 
 	// 创建HTTP服务器
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.Port),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", cfg.Port),
 		Handler: router,
 	}
 
@@ -122,9 +122,13 @@ func printStartupBanner(cfg *config.Config) {
 `
 	fmt.Println(banner)
 
-	fmt.Printf("🚀 服务地址:  http://localhost:%d\n", cfg.Port)
-	fmt.Printf("📚 API 文档:  http://localhost:%d/\n", cfg.Port)
-	fmt.Printf("💊 健康检查:  http://localhost:%d/health\n", cfg.Port)
+	host := os.Getenv("RENDER_EXTERNAL_URL")
+	if host == "" {
+		host = fmt.Sprintf("http://localhost:%d", cfg.Port)
+	}
+	fmt.Printf("🚀 服务地址:  %s\n", host)
+	fmt.Printf("📚 API 文档:  %s/\n", host)
+	fmt.Printf("💊 健康检查:  %s/health\n", host)
 	fmt.Printf("🔑 API 密钥:  %s\n", maskAPIKey(cfg.APIKey))
 
 	modelList := cfg.GetModels()
